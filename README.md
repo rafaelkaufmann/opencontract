@@ -3,7 +3,7 @@
 
 ##What is OpenContract?
 
-**OpenContract is a peer-to-peer, easy-to-use contracting platform.** It is a formal contract language (defined as JavaScript inside a sandbox with the OpenContract library included), and also a distributed database of contracts (storage- and transport-agnostic).
+**OpenContract is a peer-to-peer, easy-to-use legal contracting platform.** It is a formal language/operational semantics for specifying legal contracts (defined as JavaScript inside a sandbox with the OpenContract library included), and also a distributed database of contracts (storage- and transport-agnostic).
 
 A nontechnical whitepaper detailing the concepts and motivation is in the works. For now, suffice to say that
 

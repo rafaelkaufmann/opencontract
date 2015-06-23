@@ -1,7 +1,7 @@
 {
 	"name": "opencontract",
 	"version": "0.0.1",
-	"description": "A peer-to-peer, easy-to-use contracting platform",
+	"description": "A peer-to-peer, easy-to-use legal contracting platform",
 	"author": "Rafael Kaufmann <rafael.kaufmann@gmail.com>",
 	"contributors": [{
 		"name": "Rafael Kaufmann",

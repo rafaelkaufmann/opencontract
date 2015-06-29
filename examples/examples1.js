@@ -4,12 +4,9 @@ var OC = require('../lib/oc');
 
 var should = require('chai').should();
 
-var ECKey = require('eckey'),
-	secureRandom = require('secure-random'); 
-
 async function example1() {
-	var alicesSigKeyPair = generateKeyPair(),
-		bobsSigKeyPair = generateKeyPair();
+	var alicesSigKeyPair = OC.generateKeyPair(),
+		bobsSigKeyPair = OC.generateKeyPair();
 
 	var alice = await OC.getPartyByName('alice', alicesSigKeyPair.publicKey),  // We will use ES7 async/await throughout
 		bob = await OC.getPartyByName('bob', bobsSigKeyPair.publicKey);  // Passing the publicKeys is only necessary for stub/testing
@@ -36,8 +33,6 @@ async function example1() {
 
 	await c1.update();  // update() syncs the internal contract state
 
-	console.log(c1.serialize());
-
 	c1.expired.should.equal(false);
 	c1.revoked.should.equal(false);
 	c1.valid.should.deep.equal({p: {alice: 1, bob: 1}, source: null});
@@ -48,11 +43,10 @@ async function example1() {
 
 	c1.signed.should.deep.equal({alice: true, bob: true});  // signed is actually a getter which is running ecdsa.verify
 															// against alice and bob's publicKeys
+
+	const published = c1.publish();
+
+	const c2 = OC.Contract.load(published);
 }
 
 example1().catch(console.trace.bind(console));
-
-function generateKeyPair() {
-	var bytes = secureRandom(32);
-	return new ECKey(bytes);
-}

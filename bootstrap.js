@@ -1,6 +1,7 @@
 require("babel/register")({
-	stage: 1
+	stage: 1,
 });
+
+require('source-map-support').install();
  
 require('./examples/examples1');
-//require('./test/main');

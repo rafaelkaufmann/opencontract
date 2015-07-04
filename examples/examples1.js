@@ -20,25 +20,40 @@ async function example1() {
 		// Just keep in mind that you have to be coherent (use the same names)
 	});
 
+	console.log('Created original');
+
 	await c1.update();  // update() syncs the internal contract state
+
+	console.log('Updated original');
 
 	c1.expired.should.equal(false);
 	c1.revoked.should.equal(false);
 	c1.valid.should.deep.equal({p: {alice: 1, bob: 1}, source: null});
-	var x = c1.signed;
 	c1.signed.should.deep.equal({alice: false, bob: false});
 
-	c1.sign({alice: alicesSigKeyPair.privateKey, bob: bobsSigKeyPair.privateKey});  // using ecdsa.sign for each privateKey independently
+	await c1.sign({alice: alicesSigKeyPair.privateKey, bob: bobsSigKeyPair.privateKey});  // using ecdsa.sign for each privateKey independently
 
-	c1.signed.should.deep.equal({alice: true, bob: true});  // signed is actually a getter which is running ecdsa.verify
-															// against alice and bob's publicKeys
+	console.log('Signed original');
+
+	c1.signed.should.deep.equal({alice: true, bob: true});
+
+	console.log('Verified original');
 
 	const published = await c1.publish(new OC.Registry('local'));
 
-	const c2 = await OC.Contract.load(published);
+	console.log('Published original');
 
-	c2.update();
+	let c2 = await OC.Contract.load(published);
+
+	console.log('Loaded copy');
+
+	await c2.update();
+
+	console.log('Updated copy');
+
 	c2.signed.should.deep.equal({alice: true, bob: true});
+
+	console.log('Verified copy');
 
 }
 

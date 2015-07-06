@@ -11,7 +11,7 @@ var alice = await OC.getPartyByName('alice'),  // We will use ES7 async/await th
  Example: a trivial contract
  */
 var ct1 = new OC.ContractTemplate({
-	getState: async () => OC.state({alice: 1, bob: 1})  // ES7 arrow functions
+	body: async () => OC.state({alice: 1, bob: 1})  // ES7 arrow functions
 });
 
 var c1 = ct1.instantiate({
@@ -40,7 +40,7 @@ c1.signed.should.deep.equal({alice: true, bob: true});  // signed is actually a 
  */
 
 var ct2 = new OC.ContractTemplate({
-	getState: async () => {
+	body: async () => {
 		var self = this;
 
 		var AdidX = OC.state([await this.X(), 1]),  // These are "pure states", in the form
@@ -108,7 +108,7 @@ c2.valid.should.deep.equal({
  - At least two parties are required, named subject and certifier, and subject must have a var called idToken (see the parties field below).
  - A publicConst field called id is required, which should contain a standard representation of an identity
    (to start with, provider/name pairs, where provider is any oracle in the registry).
- - getState is exactly as below
+ - body is exactly as below
  - provider implements a compatible identification API (OpenID Connect; Facebook Login)
  */
 var ct3 = new OC.ContractTemplate({
@@ -128,11 +128,11 @@ var ct3 = new OC.ContractTemplate({
 	}
 	// This is a fully general implementation of the clause "Bob claims that Alice is able to log in as alice on Facebook".
 	// Although Alice does not participate in this step (after all, this is Bob certifying), Alice is assumed to set
-	// the private var idToken before execution of getState. (That is, Alice's node must propagate a signed update to the
+	// the private var idToken before execution of body. (That is, Alice's node must propagate a signed update to the
 	// contract where idToken is set. Since the var is private to subject, updates setting idToken need to be signed only by Alice.)
 	// If idToken is valid and corresponds to the given name, the provider will respond favorably with the query.
 	// Else Bob is considered to be in breach.
-	getState: async () => {
+	body: async () => {
 		var providedCertification = await this.publicConst.id.provider.query({
 				idToken: this.parties.subject.vars.idToken,
 				name: this.publicConst.id.name
@@ -185,7 +185,7 @@ var ct4 = new OC.ContractTemplate({
 		price: 49.99
 	},
 	rights: ['premiumAccess', 'freeAccess'],
-	getState: async () => {
+	body: async () => {
 		var paymentGateway = await OC.getOracleByName('paymentGateway'),
 			buyerHasPaid = await paymentGateway.query({
 				paymentToken: this.parties.buyer.vars.paymentToken,
@@ -248,12 +248,12 @@ await c4.update({'parties.buyer.vars.paymentToken': 'aValidPaymentToken'}).sign(
  Example: punishing misbehaving parties
 
  Sometimes an arbiter's decision will not be heeded. The arbiter will then publish a negative statement contract, signed by
- itself and the injured party, and having the offender a nonsigning third party. The getState of this negative statement can
+ itself and the injured party, and having the offender a nonsigning third party. The body of this negative statement can
  take at least two forms:
- - Open version: If the original contract is (or can be made) public, getState queries the original contract and contrasts with
+ - Open version: If the original contract is (or can be made) public, body queries the original contract and contrasts with
    the offending node's behavior. For example, show that the original contract granted a right, but the offending node
    provably denied the right (at such a time where the right was indeed granted per the contract).
- - Closed version: getState queries another node as reference oracle (maybe the arbiter itself).
+ - Closed version: body queries another node as reference oracle (maybe the arbiter itself).
 
  The idea is that, while the infringed contract is private and observable only to the original parties, the negative statement
  is public, so it can be run locally by any node. This will propagate as a breached contract by the seller and detract from
@@ -290,7 +290,7 @@ var query = {
 
 var ct5 = new OC.ContractTemplate({
 	parties: ['arbiter', 'buyer', 'seller'],
-	getState: async () => {
+	body: async () => {
 		var originalContract = await OC.getContractByID('originalContract'),
 			correctResponse = await originalContract.query(query);
 
@@ -306,17 +306,16 @@ var ct5 = new OC.ContractTemplate({
 /*
  Example: contract builder
 
- This is a shorthand for writing getState functions.
+ This is a shorthand for writing body functions.
  */
 
-var cb = ct1.ContractBuilder;
-var stateFun1 = cb.state({alice: 1, bob: 1});
+var stateFun1 = ct1.Clause({alice: 1, bob: 1}).where({});
 
-var cb = ct2.ContractBuilder;
-var stateFun2 = cb.not(cb.or(cb.and('AdidX', 'BdidY'), 'AdidZ')).where({
-					AdidX: cb('A').query('anOracle', 'X'),
-					BdidY: cb('B').query('anOracle', 'Y'),
-					AdidZ: cb('A').query('anOracle', 'Z')
+let Clause = ct2.Clause;
+var stateFun2 = Clause.not(Clause.or(Clause.and('AdidX', 'BdidY'), 'AdidZ')).where({
+					AdidX: Clause('A').query('anOracle', 'X'),
+					BdidY: Clause('B').query('anOracle', 'Y'),
+					AdidZ: Clause('A').query('anOracle', 'Z')
 				});
 
 

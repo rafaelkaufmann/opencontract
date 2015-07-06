@@ -12,29 +12,118 @@ A nontechnical whitepaper detailing the concepts and motivation is in the works.
 (This is a very different route towards "smart contracts" from what the blockchain-based projects are doing. We believe that, before we can have mathematically airtight, self-enforcing contracts, it would be nice to first have adequate tools to write and evaluate real-life, subjective, "dumb contracts". But let's skip the philosophy for now.)
 
 The JavaScript library will include the core (non-UI) features:
-* Create a contract template, specifying the **compliance state function** *getState*. This function describes the contract as such: upon running, it is intended to (asynchronously) compute the current contract state (valid, breached or something in between) for each party, *as currently perceived by the peer*. 
-* Instantiate a contract template by specifying *parties* (keypairs with UUIDs).
+
+* Create a contract, specifying at a minimum the **contracy body function**. This function describes the contract as such: upon running, it is intended to (asynchronously) compute the current contract state (valid, breached or something in between) for each party, *as currently perceived by the peer*. 
+* Specify *parties* (keypairs with UUIDs) for a contract.
 * Have parties sign a contract with their private keys.
 * Store a serialized contract.
 * Discover peers using a switchboard.
 * Publish a contract to a peer.
 * Receive a contract published by another peer, decide whether to store it or discard it, and whether to forward it to other peers.
 * Read and deserialize a stored or received contract.
-* Obtain the updated state of a contract (verify signatures, run the compliance state function, etc).
+* Obtain the updated state of a contract (verify signatures, run the body function, etc).
 * Query an oracle (really, just any old peer) with a JSON "question".
 * Respond to queries from other peers.
 
 The philosophy is to achieve all this in a very lightweight fashion, by exploiting existing solutions. Thus:
-* The contract states and predicates (the compliance state function *getState*, *isExpired*, *isRevoked*) are all written as JavaScript, serialized by the super-simple `serialize-javascript` module. To use a deserialized contract, a peer must run these functions under appropriate sandboxing to avoid exploits. No guarantees are given by the library.
+
+* The contract function *body* and the predicates (*isExpired*, *isRevoked*) are all written as JavaScript. The library supplies a context for (async) execution and some treatment on deserialization, but this is still foreign code being *eval*'d. Caveat emptor. Most likely, we will rely on human-verified signed contract templates for trust.
 * Most contracts will be about the Real World (c), and sometimes that world is uncertain. Thus, contract states are per-party probabilities, that is, numbers between 0 (definitely breached) and 1 (definitely not breached). We have our clever ideas for how the library will assign these numbers, but in the end, it's always in the hand of the contract writer.
 * P2P will be implemented on top of WebRTC, using the `rtc-io` modules. We will supply a switchboard for peer discovery. All peer communications will be JSON-based, so there will be little effort if one decides to use another transport.
-* Oracles are how *getState* is allowed to consult with the Real World (c). The same API will cater to P2P and oracling. Using a Strategy pattern, you will be able to supply any specific oracling behavior you desire for your peer. Some examples will be supplied, including one which requires human intervention.
+* Oracles are how *body* is allowed to consult with the Real World (c). The same API will cater to P2P and oracling. Using a Strategy pattern, you will be able to supply any specific oracling behavior you desire for your peer. Some examples will be supplied, including one which requires human intervention.
 
 In the interest of clarity and future-proofing, this library is written using "experimental" JavaScript features. Notably, we use `async/await` from the ECMAScript 7 spec, which rids us of callback hell once and for all (yay!) but will probably only become standard JavaScript in the distant future (boo!). Therefore, we primitive humanoids are forced to use [Babel](http://babeljs.io/).
 
 ##API
 
-[TODO]
+###Contract
+
+Contracts are the thing about which this whole thing is about. See above.
+
+####`new Contract(params : Object)`
+
+Instantiates a contract. The following parameters are accepted:
+
+* `template : Contract` (optional) - specifies another contract to be used as this one's template. This means that you will inherit the template's parties and contract functions/predicates (if defined).
+* `parties : Object<String => Party>` (optional) - specifies the parties to the contract. Each key corresponds to a party name (these names should be the same as you use in the clauses). You can instantiate a contract without parties. It won't be something you can sign or evaluate, but it will be publishable - useful for defining templates for other contracts to use.
+* `signatures : Object<String => Signature>` (optional) - these are signatures from (a subset of) the parties. These will usually be generated by the `sign` method, but if for some reason you want to import existing signatures, you can.
+* `body : Function<() => Promise<JointState>>` (optional) - this defines your "contract body" - that is, under which conditions it should be considered to be valid or breached for each party. More information on `JointState` below. The default is for contract to be considered always valid (this is useful somehow?).
+* `isExpired : Function<() => Promise<Boolean>>` (optional) - use this function to define a custom expiration criterion for your contract - the default is for your contract to never expire.
+* `isRevoked : Function<() => Promise<Boolean>>` (optional) - use this function to define a custom revocation criterion for your contract - the default is for your contract to never be revoked.
+
+Note: the contract functions are async (Promise-returning), as per the ES6 spec, but regular functions work as well.
+
+####`Contract.update() : Promise<Contract>`
+
+Executes the contract functions, verifies all signatures (if any) and updates the internal state accordingly.
+
+####`Contract.sign(privateKeys : Object<String => PrivateKey>) : Promise<Contract>`
+
+Signs the contract with the private keys supplied for each party in the `privateKeys` dictionary and verifies the signatures against the provided public keys (if any). You can invoke this method separately for each party, even sign with the wrong private key and amend it afterwards with the right one.
+
+####`Contract.publish(r : Registry) : Promise<ContractURI>`
+
+Publishes the contract on the specified registry. The returned contract URI object will supply, apart from the URI itself (meaning, the registry and ID where the published version can be retrieved), a serialized copy of the contract, and also a publication signature and timestamp from the peer that has received it.
+
+####`static Contract.load(uri : ContractURI) : Promise<Contract>`
+
+Loads a contract from an URI (having, at a minimum, the registry and ID). If the signature and timestamp are provided, they will be verified.
+
+
+###Clause
+
+Clauses are the building blocks of contract bodies. They can be composed in various ways, and then turned into contract bodies using the `where` method.
+
+####`Clause(party : Party) : Clause`
+
+Returns a Clause primed to refer only to a given party.
+
+####`Clause(state : State) : Clause`
+
+Returns a Clause preset to a given (static) state.
+
+####`Clause.and(clauses : Clause*) : Clause`
+
+Returns a clause which will evaluate to the probabilistic AND of the child clauses's evaluation.
+
+####`Clause.or(clauses : Clause*) : Clause`
+
+Returns a clause which will evaluate to the probabilistic OR of the child clauses's evaluation.
+
+####`Clause.not(clause : Clause) : Clause`
+
+Returns a clause which will evaluate to the probabilistic NOT of the child clauses's evaluation.
+
+####`Clause.query(oracle : Oracle, query : Query) : Clause`
+
+Returns a clause which will evaluate to the result of querying oracle with the given query.
+
+####`Clause.where(defs : Object) : Function<() => Promise<JointState>`
+
+Receives a dictionary of definitions and binds them to any unresolved subclauses. Returns a function which, when evaluated, returns the state specified by the clause (that is, a perfect candidate to be used as a body function).
+
+###State
+
+TODO
+
+###Right
+
+TODO
+
+###Party
+
+TODO
+
+###Registry
+
+TODO
+
+
+###Utility functions
+
+####generateKeyPair()
+
+Produces a key pair with format `{privateKey: Buffer, publicKey: Buffer}`, which will be accepted by the relevant API methods.
 
 ##Testing
 

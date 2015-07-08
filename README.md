@@ -69,6 +69,9 @@ Publishes the contract on the specified registry. The returned contract URI obje
 
 Loads a contract from an URI (having, at a minimum, the registry and ID). If the signature and timestamp are provided, they will be verified.
 
+###Signature
+
+TODO. Don't forget to talk about: signature versioning.
 
 ###Clause
 
@@ -115,6 +118,14 @@ TODO
 TODO
 
 ###Registry
+
+TODO. Don't forget to talk about: proofs of storage; encryption scheme; how to share encryption keys between parties; how to store encryption keys; encryption protocol versioning.
+
+###Peer
+
+TODO
+
+###Oracle
 
 TODO
 

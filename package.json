@@ -26,7 +26,8 @@
 		"lodash": ">3.9.3",
 		"secure-random": ">1.1.1",
 		"chai": ">3.0.0",
-	    "node-uuid": ">1.4.3"
+	    "node-uuid": ">1.4.3",
+        "es6-module-loader": ">0.17.3"
 	},
 	"license": "MIT"
 }

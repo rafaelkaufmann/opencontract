@@ -1,19 +1,18 @@
-var OC = require('../lib/oc');
+import {Contract, Party, State, Registry, Util} from '../lib/oc';
 
-var should = require('chai').should();
+const should = require('chai').should();
 
-async function example1() {
-	var alicesSigKeyPair = OC.generateKeyPair(),
-		bobsSigKeyPair = OC.generateKeyPair();
+async function example() {
+	console.log('Example: a trivial contract');
 
-	var alice = await OC.getPartyByName('alice', alicesSigKeyPair.publicKey),  // We will use ES7 async/await throughout
-		bob = await OC.getPartyByName('bob', bobsSigKeyPair.publicKey);  // Passing the publicKeys is only necessary for stub/testing
+	var alicesSigKeyPair = Util.generateKeyPair(),
+		bobsSigKeyPair = Util.generateKeyPair();
 
-	/*
-	 Example: a trivial contract
-	 */
-	var c1 = new OC.Contract({
-		body: async () => OC.state({alice: 1, bob: 1}),  // ES7 arrow functions
+	var alice = await Party.getPartyByName('alice', alicesSigKeyPair.publicKey),  // We will use ES7 async/await throughout
+		bob = await Party.getPartyByName('bob', bobsSigKeyPair.publicKey);  // Passing the publicKeys is only necessary for stub/testing
+
+	var c1 = new Contract({
+		body: async () => new State({alice: 1, bob: 1}),  // ES7 arrow functions
 		parties: {alice, bob}  // parties can be a dictionary or an array. here we're using ES7 shorthand for {alice: alice, bob: bob}.
 		// For writing actual contracts, you may want to use descriptive names such as 'seller' and 'buyer'
 		// or stick with 0, 1, 2...
@@ -39,11 +38,11 @@ async function example1() {
 
 	console.log('Verified original');
 
-	const published = await c1.publish(new OC.Registry('local'));
+	const published = await c1.publish(new Registry('local'));
 
 	console.log('Published original');
 
-	let c2 = await OC.Contract.load(published);
+	let c2 = await Contract.load(published);
 
 	console.log('Loaded copy');
 
@@ -57,4 +56,4 @@ async function example1() {
 
 }
 
-example1().catch(console.trace.bind(console));
+example().catch(console.trace.bind(console));

@@ -3,5 +3,6 @@ require("babel/register")({
 });
 
 require('source-map-support').install();
- 
-require('./examples/examples1');
+
+//require('./examples/trivial_contract');
+require('./examples/basic_clauses');

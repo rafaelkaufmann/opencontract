@@ -19,8 +19,6 @@ async function example() {
         AdidZ: Clause.single(0, z)
     });
 
-    console.log(b);
-
     let c = new Contract({
         body: b,
         parties: [alice, bob]  // Note that here we are using an *array*

@@ -109,11 +109,11 @@ TODO: Decide whether to include parallel-evaluated versions. Will have to handle
 
 ####`Clause.query(oracle : Oracle, query : Query) : Clause`
 
-Returns a clause which will evaluate to the result of querying oracle with the given query.
+Returns a clause which will evaluate to the result of querying oracle with the given query. Result will be memoized within runs.
 
 ####`Clause.where(defs : Object) : Function<() => Promise<JointState>`
 
-Receives a dictionary of definitions and binds them to any unresolved subclauses.
+Receives a dictionary of definitions and binds them to any unresolved subclauses. TODO: write more on the semantics of definitions.
 
 ###State
 

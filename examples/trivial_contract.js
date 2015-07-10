@@ -30,7 +30,7 @@ async function example() {
 	c1.valid.should.deep.equal({p: {alice: 1, bob: 1}, source: null});
 	c1.signed.should.deep.equal({alice: false, bob: false});
 
-	await c1.sign({alice: alicesSigKeyPair.privateKey, bob: bobsSigKeyPair.privateKey});  // using ecdsa.sign for each privateKey independently
+	await c1.sign({alice: alicesSigKeyPair.privateKey, bob: bobsSigKeyPair.privateKey});  // signing for each privateKey independently
 
 	console.log('Signed original');
 

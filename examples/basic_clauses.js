@@ -10,7 +10,7 @@ async function example() {
         bob = await Party.getPartyByName('bob', bobsSigKeyPair.publicKey);
 
     const x = new UnitState(0.7, 'Odin'),
-        y = new UnitState(0.5, 'Vishnu'),
+        y = new UnitState(0.55, 'Vishnu'),
         z = new UnitState(0.6, 'Eris');
 
     let b = Clause.not(Clause.or(Clause.and('AdidX', 'BdidY'), 'AdidZ')).where({
@@ -27,29 +27,32 @@ async function example() {
     await c.update();
 
     c.valid.should.deep.equal({
-        p: [(1 - x.p)*(1 - z.p), (1 - x.p)*(1 - z.p)],
-        $not: {
-            p: [1 - (1 - x.p)*(1 - z.p), 1 - (1 - x.p)*(1 - z.p)],
-            $or: [
+        p: [(1 - x.p)*(1 - z.p), (1 - y.p)],
+        operator: 'not',
+        children: [{
+            p: [1 - (1 - x.p)*(1 - z.p), 1 - (1 - y.p)*1],
+            operator: 'or',
+            children: [
                 {
                     p: [x.p, y.p],
-                    $and: [
+                    operator: 'and',
+                    children: [
                         {
                             p: [x.p, 1],
-                            $source: [x.source, null]
+                            source: [x.source, null]
                         },
                         {
                             p: [1, y.p],
-                            $source: [null, x.source]
+                            source: [null, x.source]
                         }
                     ]
                 },
                 {
                     p: [z.p, 1],
-                    $source: [z.source, null]
+                    source: [z.source, null]
                 }
             ]
-        }
+        }]
     });
 
     console.log('State is correct');

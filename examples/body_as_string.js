@@ -3,7 +3,7 @@ import {Contract, Party, State, Registry, Util, ContractBody} from '../lib/oc';
 const should = require('chai').should();
 
 async function example() {
-    console.log('Example: a trivial contract');
+    console.log('Example: contract body as string');
 
     var alicesSigKeyPair = Util.generateKeyPair(),
         bobsSigKeyPair = Util.generateKeyPair();

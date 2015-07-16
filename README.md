@@ -31,7 +31,7 @@ The philosophy is to achieve all this in a very lightweight fashion, by exploiti
 * By default, the contract body and the predicates `isExpired`, `isRevoked` are all written as JavaScript. The library supplies a sandboxed context for (async) execution and some treatment on deserialization, but this is still foreign code being `eval`'d. *Caveat emptor*. You should rely on human-verified signed contract templates for trust.
 * Alternatively, you can use Clauses, a simple, purely declarative DSL that is able to express most useful contracts. In virtue of it not being Turing-complete, contracts using Clauses are inherently more safe, which should be weighed against their limited expressiveness.
 * Most contracts will be about the Real World (c), and sometimes that world is uncertain. Thus, contract states are per-party probabilities, that is, numbers between 0 (definitely breached) and 1 (definitely not breached). We have our clever ideas for how the library will assign these numbers, but in the end, it's always in the hand of the contract writer.
-* P2P will be implemented on top of WebRTC, using the `rtc-io` modules. We will supply a switchboard for peer discovery. All peer communications will be JSON-based, so there will be little effort if one decides to use another transport.
+* P2P will be implemented on top of existing transports. One idea is WebRTC, using the `rtc-io` modules. We will supply a switchboard for peer discovery. All peer communications will be JSON-based, so there will be little effort if one decides to use another transport.
 * Oracles are how `body` is allowed to consult with the Real World (c). The same API will cater to P2P and oracling. Using a Strategy pattern, you will be able to supply any specific oracling behavior you desire for your peer. Some examples will be supplied, including one which requires human intervention.
 
 In the interest of clarity and future-proofing, this library is written using "experimental" JavaScript features. Notably, we use `async/await` from the ECMAScript 7 spec, which rids us of callback hell once and for all (yay!) but will probably only become standard JavaScript in the distant future (boo!). Therefore, we primitive humanoids are forced to use [Babel](http://babeljs.io/) to transpile down to whatever version of ES our environments actually support.
@@ -110,17 +110,17 @@ Returns a Clause primed to refer only to a given party (identified by name or ob
 
 Returns a Clause with a given (static) state.
 
-####`static Clause.and(clauses : Clause*) : Clause`
+####`static Clause.and(...clauses : Array<Clause>) : Clause`
 
-Returns a clause which will evaluate to the probabilistic AND of the child clauses's evaluation. Serial evaluation. Short-circuiting applies only for values of exactly zero for all parties.
+Returns a clause which will evaluate to the probabilistic AND of the child clauses' evaluation. Serial evaluation. Short-circuiting applies only for values of exactly zero for all parties.
 
-####`static Clause.or(clauses : Clause*) : Clause`
+####`static Clause.or(...clauses : Array<Clause>) : Clause`
 
-Returns a clause which will evaluate to the probabilistic OR of the child clauses's evaluation. Serial evaluation. Short-circuiting applies only for values of exactly one for all parties.
+Returns a clause which will evaluate to the probabilistic OR of the child clauses' evaluation. Serial evaluation. Short-circuiting applies only for values of exactly one for all parties.
 
 ####`static Clause.not(clause : Clause) : Clause`
 
-Returns a clause which will evaluate to the probabilistic NOT of the child clauses's evaluation.
+Returns a clause which will evaluate to the probabilistic NOT of the child clauses' evaluation.
 
 TODO: Decide whether to include parallel-evaluated versions. Will have to handle the same query running in parallel, locks... yuck!
 
@@ -128,7 +128,7 @@ TODO: Decide whether to include parallel-evaluated versions. Will have to handle
 
 Returns a clause which will evaluate to the result of querying oracle with the given query. Result will be memoized within runs.
 
-####`Clause.where(defs : Object) : Function<() => Promise<JointState>`
+####`Clause.where(defs : Object) : Clause`
 
 Receives a dictionary of definitions and binds them to any unresolved subclauses. TODO: write more on the semantics of definitions.
 
@@ -172,3 +172,26 @@ The below will execute the examples, which have plenty of functional tests.
 npm install
 node bootstrap.js
 ```
+
+##TODO
+
+* Kill Clauses in favor of rich state combinators + support for an actual DSL (probably something that already exists, 
+like Elm?). Try to write some real-life contracts in different styles and see what works best.
+* More comprehensive tests, including failing cases!
+* Work on documentation.
+* Get source maps working under Babel/Node.
+* Publish/fetch encryption/decryption.
+* Fetch validation.
+* Signature versioning.
+* Revocation.
+* Text version as arbitrary documents with metadata.
+* Better sandbox for deserializing and running contract functions (maybe forcibly turn into ES6 modules and use Loader?).
+* Flesh out Party, Registry and Peer. Specifically:
+  * Party identity. In-registry UUIDs? Do we need a two-step generation procedure (IDs are vetoed by peers?)
+  * Commit to WebRTC as transport. Possibly overkill, but automatically gives us NAT, etc. A switchboard seems inevitable no matter what.
+  * Implement the oracle service, including OracleStrategy interface and some example implementations.
+  * Implement the publish/fetch service, including redundancy level, publish reject and publish/fetch forward.
+  * Implement storage. Support at least MongoDB and Local Storage (through MiniMongo).
+  * Split this out into separate project `opencontract-peer`.
+* Instrumentation to support tracing function-style bodies, so we can map the flow of the probabilities from queries or base states to the return value.
+* Test in browser.

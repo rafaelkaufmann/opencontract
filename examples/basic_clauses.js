@@ -1,4 +1,4 @@
-import {Contract, Clause, Party, UnitState, Util} from '../lib/oc';
+import {Contract, Party, State, UnitState, JointState, Util} from '../lib/oc';
 
 const should = require('chai').should();
 
@@ -13,11 +13,12 @@ async function example() {
         y = new UnitState(0.55, 'Vishnu'),
         z = new UnitState(0.6, 'Eris');
 
-    let b = Clause.not(Clause.or(Clause.and('AdidX', 'BdidY'), 'AdidZ')).where({
-        AdidX: Clause.single(0, x),
-        BdidY: Clause.single(1, y),
-        AdidZ: Clause.single(0, z)
-    });
+    let b = () => {
+        let AdidX = new JointState({a: x}),
+            BdidY = new JointState({b: y}),
+            AdidZ = new JointState({a: z});
+        return State.not(State.or(State.and(AdidX, BdidY), AdidZ));
+    };
 
     let c = new Contract({
         body: b,
@@ -26,33 +27,139 @@ async function example() {
 
     await c.update();
 
+    /*
     c.valid.should.deep.equal({
-        p: [(1 - x.p)*(1 - z.p), (1 - y.p)],
+        p: {a: (1 - x.p)*(1 - z.p), b: (1 - y.p)},
         operator: 'not',
         children: [{
-            p: [1 - (1 - x.p)*(1 - z.p), 1 - (1 - y.p)*1],
+            p: {a: 1 - (1 - x.p)*(1 - z.p), b: 1 - (1 - y.p)*1},
             operator: 'or',
             children: [
                 {
-                    p: [x.p, y.p],
+                    p: {a: x.p, b: y.p},
                     operator: 'and',
                     children: [
                         {
-                            p: [x.p, 1],
-                            source: [x.source, null]
+                            p: {a: x.p},
+                            source: {a: x.source}
                         },
                         {
-                            p: [1, y.p],
-                            source: [null, x.source]
+                            p: {b: y.p},
+                            source: {b: x.source}
                         }
                     ]
                 },
                 {
-                    p: [z.p, 1],
-                    source: [z.source, null]
+                    p: {a: z.p},
+                    source: {a: z.source}
                 }
             ]
         }]
+    });
+    */
+
+    AdidX === {
+        a: {
+            p: x.p,
+            source: x.source,
+        }
+    };
+
+    BdidY === {
+        b: {
+            p: y.p,
+            source: y.source,
+        }
+    };
+
+    State.and(AdidX, BdidY) === {
+        a: {
+            p: x.p,
+            operator: 'and',
+            children: [
+                {
+                    p: x.p,
+                    source: x.source
+                },
+                {
+                    p: 1,
+                    source: null
+                }
+            ]
+        },
+        b: {
+            p: y.p,
+            operator: 'and',
+            children: [
+                {
+                    p: 1,
+                    source: null
+                },
+                {
+                    p: y.p,
+                    source: y.source
+                }
+            ]
+        }
+    };
+
+    c.valid.should.deep.equal({
+        a: {
+            p: (1 - x.p)*(1 - z.p),
+            operator: 'not',
+            children: [{
+                p: 1 - (1 - x.p)*(1 - z.p),
+                operator: 'or',
+                children: [
+                    {
+                        p: x.p,
+                        operator: 'and',
+                        children: [
+                            {
+                                p: x.p,
+                                source: x.source
+                            },
+                            {
+                                p: 1,
+                                source: null
+                            }
+                        ]
+                    },
+                    {
+                        p: z.p,
+                        source: z.source
+                    }
+                ]
+            }]
+        },
+        b: {
+            p: (1 - y.p),
+            operator: 'not',
+            children: [{
+                p: 1 - (1 - y.p),
+                operator: 'or',
+                children: [
+                    {
+                        p: y.p,
+                        operator: 'and',
+                        children: [
+                            {
+                                p: 1,
+                                source: null
+                            },
+                            {
+                                p: y.p,
+                                source: y.source
+                            }
+                        ]
+                    },
+                    {
+                        p: 1,
+                        source: null
+                    }
+                ]
+            }]
+        }
     });
 
     console.log('State is correct');

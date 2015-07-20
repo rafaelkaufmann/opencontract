@@ -15,63 +15,57 @@ async function example() {
     let text = ```
 Share Transfer Statement
 
-I, [signer], hereby declare that:
+I, [oracle], hereby declare that:
 * On the 15th of October, 2014, [party] transferred 8,000 shares of the Acme Company to [counterparty];
 * [party] does not, as of July 16 2015, possess any equity in the Acme Company.
     ```;
 
-    // These are all really sketchy details of the oracle's API. The important part here is the different ways to
-    // express a body.
+    // These are all really sketchy details of the oracle's API. The important part here is the different possible
+    // ways to express a body.
 
     let b1 = async () => {
-        let oracle = await Oracle(signer.name),
+        let oracle = await Oracle.fetch(oracle.name),
             transfer = await oracle.queryAsObject({ type: 'transfer', date: 'October 15 2014', party: alice.name, counterparty: bob.name, amount: 8000 }),
             position = await oracle.queryAsValue({ type: 'position', date: 'July 16 2015', party: alice.name });
 
-        let clause1 = signer.declare(transfer.exists()),
-            clause2 = signer.declare(position.equals(0));
+        let clause1 = oracle.declare(transfer.exists()),
+            clause2 = oracle.declare(position.equals(0));
 
         return clause1.and(clause2);
     };
 
-    let b2 = Clause.and(
-        Clause(signer).setState(Query.asObject(signer.name, {
-            type: 'transfer', date: 'October 15 2014', party: alice.name, counterparty: bob.name, amount: 8000
-        }).exists()),
-        Clause(signer).setState(Query.asValue(signer.name, {
-            type: 'position', date: 'July 16 2015', party: alice.name
-        }).equals(0)));
-
+    // Hypothetical implementation in Elm
     let b3 = ```
-        transfer = query ${signer.name} {
+        transfer = query ${oracle.name} {
           type = 'transfer', date = 'October 15 2014', party = ${alice.name}, counterparty = ${bob.name}, amount = 8000
         } |> asObject
 
-        position = query ${signer.name} {
+        position = query ${oracle.name} {
           type = 'position', date = 'July 16 2015', party = alice.name
         } |> asValue
 
-        declare ${signer.name} ((exists transfer) and (position == 0))
+        declare ${oracle.name} ((exists transfer) and (position == 0))
     ```;
 
+    // Possibly assuming some shorthands to improve readability?
     let query = Oracle.query,
         declare = Party.declare;
     let b4 = async () => {
-        let transfer = query(signer.name, {
+        let transfer = query(oracle.name, {
                 type: 'transfer', date: 'October 15 2014', party: alice.name, counterparty: bob.name, amount: 8000
             }).asObject(),
-            position = query(signer.name, {
+            position = query(oracle.name, {
                 type: 'position', date: 'July 16 2015', party: alice.name
             }).asValue();
 
-        let clause = declare(signer.name, transfer.exists().and(position.equals(0)));
+        let clause = declare(oracle.name, transfer.exists().and(position.equals(0)));
 
         return clause.run();
     };
 
     let c = new Contract({
-        body: b,
-        parties: {signer: oracle, party: alice, counterparty: bob},
+        body: b1,
+        parties: {oracle: oracle, party: alice, counterparty: bob},
         textVersion: {
             format: 'text/utc-8',
             contents: text

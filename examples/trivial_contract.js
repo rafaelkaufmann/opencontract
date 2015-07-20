@@ -1,4 +1,4 @@
-import {Contract, Party, State, Registry, Util} from '../lib/oc';
+import {Contract, Party, UnitState, JointState, Registry, Util} from '../lib/oc';
 
 const should = require('chai').should();
 
@@ -12,7 +12,7 @@ async function example() {
 		bob = await Party.getPartyByName('bob', bobsSigKeyPair.publicKey);  // Passing the publicKeys is only necessary for stub/testing
 
 	var c1 = new Contract({
-		body: async () => new State({alice: 1, bob: 1}),  // ES7 arrow functions
+		body: async () => new JointState({alice: UnitState.trueState, bob: UnitState.trueState}),  // ES7 arrow functions
 		parties: {alice, bob}  // parties can be a dictionary or an array. here we're using ES7 shorthand for {alice: alice, bob: bob}.
 		// For writing actual contracts, you may want to use descriptive names such as 'seller' and 'buyer'
 		// or stick with 0, 1, 2...
@@ -27,7 +27,7 @@ async function example() {
 
 	c1.expired.should.equal(false);
 	c1.revoked.should.equal(false);
-	c1.valid.should.deep.equal({p: {alice: 1, bob: 1}, source: null});
+	c1.valid.should.deep.equal({ alice: { p: 1, source: null }, bob: { p: 1, source: null } });
 	c1.signed.should.deep.equal({alice: false, bob: false});
 
 	await c1.sign({alice: alicesSigKeyPair.privateKey, bob: bobsSigKeyPair.privateKey});  // signing for each privateKey independently

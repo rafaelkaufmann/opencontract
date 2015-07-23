@@ -9,11 +9,11 @@ A nontechnical whitepaper detailing the concepts and motivation is in the works.
 
 **OpenContract allows parties to write and sign a contract, publish it to distributed, P2P storage, and evaluate contract compliance, verify signatures and validity automatically.**
 
-(This is a very different route towards "smart contracts" from what the blockchain-based projects are doing. We believe that, before we can have mathematically airtight, self-enforcing contracts, it would be nice to first have adequate tools to write and evaluate real-life, subjective, "dumb contracts". But let's skip the philosophy for now.)
+(This is a very different route towards "smart contracts" from what the blockchain-based projects are doing. We believe that, although mathematically airtight, self-enforcing contracts look good on paper, a more important, more achievable and more useful goal is developing adequate tools to write, evaluate and enforce real-life, subjective, "dumb contracts". But let's skip the philosophy for now.)
 
-The JavaScript library will include the core (non-UI) features:
+The JavaScript library will include the following core features (UI will be handled in a separate project):
 
-* Create a contract, specifying at a minimum the **contract body function**. This function describes the contract as such: upon running, it is intended to (asynchronously) compute the current contract state (valid, breached or something in between) for each party, *as currently perceived by the peer*. 
+* Create a contract, specifying at a minimum the **contract body function**. This function describes the contract as such: upon running, it is intended to compute the current contract state (valid, breached or something in between) for each party, *as currently perceived by the peer*. 
 * Specify **parties** (keypairs with UUIDs) for a contract.
 * Sign a contract with a party's private key.
 * Revoke a signature.
@@ -33,7 +33,7 @@ The philosophy is to achieve all this in a very lightweight fashion, by exploiti
 * P2P will be implemented on top of existing transports. One idea is WebRTC, using the `rtc-io` modules. We will supply a switchboard for peer discovery. All peer communications will be JSON-based, so there will be little effort if one decides to use another transport.
 * Oracles are how `body` is allowed to consult with the Real World (c). The same API will cater to P2P and oracling. Using a Strategy pattern, you will be able to supply any specific oracling behavior you desire for your peer. Some examples will be supplied, including one which requires human intervention.
 
-In the interest of clarity and future-proofing, this library is written using "experimental" JavaScript features. Notably, we use `async/await` from the ECMAScript 7 spec, which rids us of callback hell once and for all (yay!) but will probably only become standard JavaScript in the distant future (boo!). Therefore, we primitive humanoids are forced to use [Babel](http://babeljs.io/) to transpile down to whatever version of ES our environments actually support.
+In the interest of clarity and future-proofing, this library is written using "experimental" JavaScript features. Notably, we use `async/await` from the ECMAScript 7 spec, which rids us of "callback hell" once and for all (yay!) but will probably only become standard JavaScript in the distant future (boo!). Therefore, we primitive humanoids are forced to use [Babel](http://babeljs.io/) to transpile down to whatever version of ES our environments actually support.
 
 The library supplies a sandboxed context for (async) execution and some treatment on deserialization, but this is still foreign code being `eval`'d. *Caveat emptor*. You should rely on human-verified signed contract templates for trust.
 

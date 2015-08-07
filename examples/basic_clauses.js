@@ -1,4 +1,9 @@
 import {Contract, Party, State, UnitState, JointState, Util} from '../lib/oc';
+import * as math from 'mathjs';
+
+const N = x => math.bignumber(x),
+    One = N(1),
+    Zero = N(0);
 
 const should = require('chai').should();
 
@@ -27,64 +32,70 @@ async function example() {
 
     await c.update();
 
-    c.valid.should.deep.equal({
-        a: {
-            p: (1 - x.p)*(1 - z.p),
-            operator: 'not',
-            children: [{
-                p: 1 - (1 - x.p)*(1 - z.p),
-                operator: 'or',
-                children: [
-                    {
-                        p: x.p,
-                        operator: 'and',
-                        children: [
-                            {
-                                p: x.p,
-                                source: x.source
-                            },
-                            {
-                                p: 1,
-                                source: null
-                            }
-                        ]
-                    },
-                    {
-                        p: z.p,
-                        source: z.source
-                    }
-                ]
-            }]
-        },
-        b: {
-            p: (1 - y.p),
-            operator: 'not',
-            children: [{
-                p: 1 - (1 - y.p),
-                operator: 'or',
-                children: [
-                    {
-                        p: y.p,
-                        operator: 'and',
-                        children: [
-                            {
-                                p: 1,
-                                source: null
-                            },
-                            {
-                                p: y.p,
-                                source: y.source
-                            }
-                        ]
-                    },
-                    {
-                        p: 1,
-                        source: null
-                    }
-                ]
-            }]
-        }
-    });
+    const actualState = c.valid.toJSON(),
+        expectedState = {
+            a: {
+                p: 0.12,
+                operator: 'not',
+                children: [{
+                    p: 0.88,
+                    operator: 'or',
+                    children: [
+                        {
+                            p: 0.7,
+                            operator: 'and',
+                            children: [
+                                {
+                                    p: 0.7,
+                                    source: x.source
+                                },
+                                {
+                                    p: 1,
+                                    source: null
+                                }
+                            ]
+                        },
+                        {
+                            p: 0.6,
+                            source: z.source
+                        }
+                    ]
+                }]
+            },
+            b: {
+                p: 0,
+                operator: 'not',
+                children: [{
+                    p: 1,
+                    operator: 'or',
+                    children: [
+                        {
+                            p: 0.55,
+                            operator: 'and',
+                            children: [
+                                {
+                                    p: 1,
+                                    source: null
+                                },
+                                {
+                                    p: 0.55,
+                                    source: y.source
+                                }
+                            ]
+                        },
+                        {
+                            p: 1,
+                            source: null
+                        }
+                    ]
+                }]
+            }
+        };
+
+    console.log(JSON.stringify(actualState));
+    console.log(JSON.stringify(expectedState));
+
+    actualState.should.deep.equal(expectedState);
 
     console.log('State is correct');
 

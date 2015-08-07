@@ -27,7 +27,7 @@ async function example() {
 
 	c1.expired.should.equal(false);
 	c1.revoked.should.equal(false);
-	c1.valid.should.deep.equal({ alice: { p: 1, source: null }, bob: { p: 1, source: null } });
+	c1.valid.toJSON().should.deep.equal({ alice: { p: 1, source: null }, bob: { p: 1, source: null } });
 	c1.signed.should.deep.equal({alice: false, bob: false});
 
 	await c1.sign({alice: alicesSigKeyPair.privateKey, bob: bobsSigKeyPair.privateKey});  // signing for each privateKey independently

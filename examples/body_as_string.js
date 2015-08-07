@@ -12,7 +12,7 @@ async function example() {
         bob = await Party.getPartyByName('bob', bobsSigKeyPair.publicKey);
 
     var c1 = new Contract({
-        body: new ContractBody('async () => new State({alice: 1, bob: 1})', {language: 'es7'}),
+        body: new ContractBody('async () => new JointState({alice: UnitState.trueState, bob: UnitState.trueState})', {language: 'es7'}),
         parties: {alice, bob}
     });
 
@@ -24,7 +24,7 @@ async function example() {
 
     c1.expired.should.equal(false);
     c1.revoked.should.equal(false);
-    c1.valid.should.deep.equal({p: {alice: 1, bob: 1}, source: null});
+    c1.valid.should.deep.equal({ alice: { p: 1, source: null }, bob: { p: 1, source: null } });
     c1.signed.should.deep.equal({alice: false, bob: false});
 
     await c1.sign({alice: alicesSigKeyPair.privateKey, bob: bobsSigKeyPair.privateKey});

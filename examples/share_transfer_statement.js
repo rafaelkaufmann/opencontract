@@ -1,4 +1,4 @@
-import {Contract, Party, UnitState, Util} from '../lib/oc';
+import {Contract, Party, UnitState, Oracle, Util} from '../lib/oc';
 
 const should = require('chai').should();
 

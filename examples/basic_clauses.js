@@ -17,7 +17,7 @@ async function example() {
         let AdidX = new JointState({a: x}),
             BdidY = new JointState({b: y}),
             AdidZ = new JointState({a: z});
-        return State.not(State.or(State.and(AdidX, BdidY), AdidZ));
+        return AdidX.and(BdidY).or(AdidZ).not();
     };
 
     let c = new Contract({

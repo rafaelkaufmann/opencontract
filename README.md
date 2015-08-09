@@ -182,7 +182,7 @@ node bootstrap.js
 * Rights and "may" clauses.
 * More comprehensive tests, including failing cases!
 * Work on documentation.
-* Get source maps working under Babel/Node.
+* Get source maps working under Babel/Node -- seems not to work with async/await...
 * Publish/fetch encryption/decryption.
 * Fetch validation.
 * Signature versioning.
@@ -190,7 +190,7 @@ node bootstrap.js
 * Links between contracts (eg, notion that "party A is required to be a signer of contract Y" within contract body X).
 * Text version as arbitrary documents with metadata.
 * Better sandbox for deserializing and running contract functions (maybe forcibly turn into ES6 modules and use Loader?).
-* Flesh out Party, Registry and Peer. Specifically:
+* Flesh out Party, Registry, Peer, Right. Specifically:
   * Party identity (in-registry UUIDs). Do we need a two-step generation procedure (IDs are vetoed by peers?)
   * Commit to WebRTC as transport. Possibly overkill, but automatically gives us NAT, etc. A switchboard seems inevitable no matter what.
   * Oracle service, including OracleStrategy interface and some example implementations.

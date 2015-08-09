@@ -8,6 +8,8 @@ const N = x => math.bignumber(x),
 const should = require('chai').should();
 
 async function example() {
+    console.log('Example: a trivial contract');
+
     let alicesSigKeyPair = Util.generateKeyPair(),
         bobsSigKeyPair = Util.generateKeyPair();
 

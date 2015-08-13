@@ -13,8 +13,8 @@ async function example() {
     let alicesSigKeyPair = Util.generateKeyPair(),
         bobsSigKeyPair = Util.generateKeyPair();
 
-    let alice = await Party.getPartyByName('alice', alicesSigKeyPair.publicKey),
-        bob = await Party.getPartyByName('bob', bobsSigKeyPair.publicKey);
+    let alice = await Registry.getPartyByName('alice', alicesSigKeyPair.publicKey),
+        bob = await Registry.getPartyByName('bob', bobsSigKeyPair.publicKey);
 
     const x = new UnitState(0.7, 'Odin'),
         y = new UnitState(0.55, 'Vishnu'),

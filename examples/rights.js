@@ -5,12 +5,14 @@ const should = require('chai').should();
 async function example() {
     console.log('Example: clauses');
 
+    let registry = new Registry('local');
+
     var alicesSigKeyPair = Util.generateKeyPair(),
         bobsSigKeyPair = Util.generateKeyPair();
 
-    var alice = await Party.getPartyByName('alice', alicesSigKeyPair.publicKey),
-        bob = await Party.getPartyByName('bob', bobsSigKeyPair.publicKey),
-        alicesPorsche = await Right.getRightByName('alicesPorsche');
+    var alice = await registry.getPartyByName('alice', alicesSigKeyPair.publicKey),
+        bob = await registry.getPartyByName('bob', bobsSigKeyPair.publicKey),
+        alicesPorsche = await registry.getRightByName('alicesPorsche');
 
     /*
      Bob must transfer 8000 units of currency to Alice before October 21 2015. If he has done this, he gets the right to Alice's Porsche.
@@ -25,7 +27,7 @@ async function example() {
 
             return clause;
         },
-        registry: 'local',
+        registry: registry,
         rights: {alicesPorsche},
         parties: {alice, bob}
     });

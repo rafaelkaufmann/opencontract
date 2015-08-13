@@ -5,11 +5,13 @@ const should = require('chai').should();
 async function example() {
     console.log('Example: contract body as string');
 
+    let registry = new Registry('local');
+
     var alicesSigKeyPair = Util.generateKeyPair(),
         bobsSigKeyPair = Util.generateKeyPair();
 
-    var alice = await Party.getPartyByName('alice', alicesSigKeyPair.publicKey),
-        bob = await Party.getPartyByName('bob', bobsSigKeyPair.publicKey);
+    var alice = await registry.getPartyByName('alice', alicesSigKeyPair.publicKey),
+        bob = await registry.getPartyByName('bob', bobsSigKeyPair.publicKey);
 
     var c1 = new Contract({
         body: new ContractBody('async () => new JointState({alice: UnitState.trueState, bob: UnitState.trueState})', {language: 'es7'}),

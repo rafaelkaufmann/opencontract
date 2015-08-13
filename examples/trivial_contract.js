@@ -5,11 +5,13 @@ const should = require('chai').should();
 async function example() {
 	console.log('Example: a trivial contract');
 
+    let registry = new Registry('local');
+
 	var alicesSigKeyPair = Util.generateKeyPair(),
 		bobsSigKeyPair = Util.generateKeyPair();
 
-	var alice = await Party.getPartyByName('alice', alicesSigKeyPair.publicKey),  // We will use ES7 async/await throughout
-		bob = await Party.getPartyByName('bob', bobsSigKeyPair.publicKey);  // Passing the publicKeys is only necessary for stub/testing
+	var alice = await registry.getPartyByName('alice', alicesSigKeyPair.publicKey),  // We will use ES7 async/await throughout
+		bob = await registry.getPartyByName('bob', bobsSigKeyPair.publicKey);  // Passing the publicKeys is only necessary for stub/testing
 
 	var c1 = new Contract({
 		body: async () => new JointState({alice: UnitState.trueState, bob: UnitState.trueState}),  // ES7 arrow functions
@@ -38,7 +40,7 @@ async function example() {
 
 	console.log('Verified original');
 
-	const published = await c1.publish(new Registry('local'));
+	const published = await c1.publish(registry);
 
 	console.log('Published original');
 

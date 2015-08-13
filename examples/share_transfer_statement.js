@@ -4,13 +4,16 @@ const should = require('chai').should();
 
 async function example() {
     console.log('A real-world "contract". Assume the signer/oracle is some sort of interface to a company registry');
+
+    let registry = new Registry('local');
+
     var sellersSigKeyPair = Util.generateKeyPair(),
         buyersSigKeyPair = Util.generateKeyPair(),
         oraclesSigKeyPair = Util.generateKeyPair();
 
-    var seller = await Party.getPartyByName('seller', sellersSigKeyPair.publicKey),
-        buyer = await Party.getPartyByName('buyer', buyersSigKeyPair.publicKey),
-        oracle = await Party.getPartyByName('oracle', oraclesSigKeyPair.publicKey);
+    var seller = await registry.getPartyByName('seller', sellersSigKeyPair.publicKey),
+        buyer = await registry.getPartyByName('buyer', buyersSigKeyPair.publicKey),
+        oracle = await registry.getPartyByName('oracle', oraclesSigKeyPair.publicKey);
 
     let text = ```
 Share Transfer Statement

@@ -159,17 +159,15 @@ Note that the library does *not* enforce exclusivity of the right: it is possibl
 
 ###Registry
 
-TODO. Don't forget to talk about: handling metadata updates (parties and signatures); proofs of storage; encryption scheme; how to share encryption keys between parties; how to store encryption keys; encryption protocol versioning.
+Registry encapsulates a network/namespace of peers who hold contracts, similar to "testnet" or "mainnet" for Bitcoin.
+
+Don't forget to talk about: handling metadata updates (parties and signatures); proofs of storage; encryption scheme; how to share encryption keys between parties; how to store encryption keys; encryption protocol versioning.
 
 ####`Registry.publish(c : Contract) : Promise<ContractURI>`
 
 ####`Registry.fetch(c : ContractURI) : Promise<Contract>`
 
 See the corresponding methods on Contract.
-
-###Peer
-
-TODO
 
 ###Oracle
 

@@ -159,7 +159,7 @@ Note that the library does *not* enforce exclusivity of the right: it is possibl
 
 ###Registry
 
-Registry encapsulates a network/namespace of peers who hold contracts, similar to "testnet" or "mainnet" for Bitcoin.
+Registry encapsulates a network/namespace of peers who hold contracts, similar to "testnet" or "mainnet" for Bitcoin. The only thing this 
 
 Don't forget to talk about: handling metadata updates (parties and signatures); proofs of storage; encryption scheme; how to share encryption keys between parties; how to store encryption keys; encryption protocol versioning.
 
@@ -206,15 +206,6 @@ node bootstrap.js
 * Links between contracts (eg, notion that "party A is required to be a signer of contract Y" within contract body X).
 * Text version as arbitrary documents with metadata.
 * Better sandbox for deserializing and running contract functions (maybe forcibly turn into ES6 modules and use Loader?).
-* Flesh out Party, Registry, Peer, Right. Specifically:
-  * Use hashes as contract UUIDs - Makes publish signatures redundant.
-  * Party identity (in-registry UUIDs). Do we need a two-step generation procedure (IDs are vetoed by peers?)
-  * Commit to WebRTC as transport. Possibly overkill, but automatically gives us NAT, etc. A switchboard seems inevitable no matter what.
-  * Oracle service, including OracleStrategy interface and some example implementations.
-  * Publish/fetch service, including redundancy level, publish reject and publish/fetch forward.
-  * Storage. Support at least MongoDB and Local Storage (through MiniMongo).
-  * Contract versioning (notion that "contract A is an update to contract B").
-  * Split this out into separate project `opencontract-peer`.
 * Instrumentation to support tracing function-style bodies, so we can map the flow of the probabilities from queries or base states to the return value.
 * API for proofs of identity and web of trust. Include keypair substitution.
 * Make the language plugins part of the registry, so that all peers automatically support all languages, new plugins are vetoed and given trust ratings, etc.

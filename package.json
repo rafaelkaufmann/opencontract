@@ -20,15 +20,15 @@
 		"p2p"
 	],
 	"dependencies": {
-		"babel": ">5.6.4",
-		"crypto": ">0.0.3",
-	    "eccrypto": ">1.0.0",
-		"lodash": ">3.9.3",
-		"secure-random": ">1.1.1",
-		"chai": ">3.0.0",
-	    "node-uuid": ">1.4.3",
-        "es6-module-loader": ">0.17.3",
-	    "mathjs": ">2.0.1"
+		"babel": ">=5.6.4",
+		"crypto": ">=0.0.3",
+	    "eccrypto": ">=1.0.0",
+		"lodash": ">=3.9.3",
+		"secure-random": ">=1.1.1",
+		"chai": ">=3.0.0",
+	    "node-uuid": ">=1.4.3",
+        "es6-module-loader": ">=0.17.3",
+	    "mathjs": ">=2.0.1"
 	},
 	"license": "MIT"
 }

@@ -196,6 +196,9 @@ node bootstrap.js
 
 ##TODO
 
+* Use hashes as contract UUIDs - Makes publish signatures redundant.
+* Registry UUIDs.
+* Publish Parties and Rights.
 * Rename UnitState as State, and JointState as Clause.
 * More comprehensive tests, including failing cases!
 * Get source maps working under Babel/Node -- seems not to work with async/await...
